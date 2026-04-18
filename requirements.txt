@@ -1,0 +1,7 @@
+Flask
+pdfplumber
+sentence-transformers
+pymongo
+gunicorn
+requests
+numpy
