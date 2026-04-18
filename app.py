@@ -10,6 +10,7 @@ from pymongo import MongoClient
 from sentence_transformers import SentenceTransformer, util
 
 app = Flask(__name__)
+# CORS setting for production
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 # 📍 MONGODB CONNECTION
@@ -23,15 +24,12 @@ try:
 except Exception as e:
     print(f"❌ Database Error: {e}")
 
-# AI Model Loading
+# AI Model Loading (Force CPU to save memory on Render)
 print("🚀 Loading Neural Engine (all-MiniLM-L6-v2)...")
-model = SentenceTransformer('all-MiniLM-L6-v2')
+model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
 
 # --- LOGIC 1: Skill Comparison (Matched vs Missing) ---
 def analyze_skills_comparison(jd, resume_text):
-    """
-    Ye function JD ke basis par check karega ki resume mein kya mila aur kya nahi.
-    """
     skill_bank = [
         "python", "java", "javascript", "react", "node", "mongodb", "sql", 
         "aws", "docker", "machine learning", "flask", "django", "html", 
@@ -43,9 +41,7 @@ def analyze_skills_comparison(jd, resume_text):
     resume_lower = resume_text.lower()
     
     for skill in skill_bank:
-        # Agar skill JD mein maangi gayi hai
         if skill in jd_lower:
-            # Toh check karo resume mein hai ya nahi
             if skill in resume_lower:
                 matched.append(skill.capitalize())
             else:
@@ -102,12 +98,10 @@ def scan_resumes():
         text = get_text_from_file(file)
         if not text: continue
         
-        # AI Scoring
         resume_vector = model.encode(text, convert_to_tensor=True)
         cosine_score = util.cos_sim(jd_vector, resume_vector)[0]
         base_score = float(cosine_score) * 100
         
-        # Skill Comparison (Matched vs Missing)
         matched, missing = analyze_skills_comparison(jd, text)
         projects = get_github_projects(text)
         
@@ -119,8 +113,8 @@ def scan_resumes():
         res_entry = {
             "name": file.filename,
             "score": final_score,
-            "matched_skills": matched,  # Naya Field
-            "missing_skills": missing,  # Naya Field
+            "matched_skills": matched,
+            "missing_skills": missing,
             "projects": projects,
             "status": status
         }
@@ -138,4 +132,6 @@ def scan_resumes():
     return jsonify(sorted(results, key=lambda x: x['score'], reverse=True))
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000, host='0.0.0.0')
+    # RENDER PORT FIX
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
