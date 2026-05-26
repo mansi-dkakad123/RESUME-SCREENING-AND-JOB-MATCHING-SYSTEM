@@ -20,12 +20,12 @@ This tool helps HR teams and recruiters save time by parsing resumes and ranking
 * **Environment:** Python Virtual Environment (`pyvenv.cfg`)
 
 
-Installation & Setup
+ ##Installation & Setup
 1)Clone the Repository:
 git clone (https://github.com/mansi-dkakad123/RESUME-SCREENING-AND-JOB-MATCHING-SYSTEM.git)
 cd RESUME-SCREENING-AND-JOB-MATCHING-SYSTEM
 
-2)Set up Virtual Environment (Optional but Recommended):
+##Set up Virtual Environment (Optional but Recommended):
 python -m venv env
 # Activate on Windows:
 .\env\Scripts\activate
@@ -33,8 +33,8 @@ python -m venv env
 source env/bin/activate
 
 
-3)Install Dependencies:
+##Install Dependencies:
   pip install -r requirements.txt
 
-4)python app.py
+##python app.py
    Open http://127.0.0.1:5000/
